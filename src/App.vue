@@ -11,55 +11,49 @@
       
       
     </div>
-    <!--<div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>-->
-    <!--<router-view/>-->
-    
   </div>
 
 </template>
 
 <script>
+
+
+
   import UpcomingSongBar from "@/components/UpcomingSongBar"
   import SongItem from "@/components/SongItem"
+import { isRejected } from 'q';
 
   export default {
     components: {UpcomingSongBar, SongItem},
     name: 'app',
+    mounted: function() {
+      let spotifyWebSDKScript = document.createElement('script')
+      spotifyWebSDKScript.setAttribute('src', 'https://sdk.scdn.co/spotify-player.js')
+      document.head.appendChild(spotifyWebSDKScript)
+
+      window.onSpotifyWebPlaybackSDKReady = () => { 
+        spotifyState.setReady()
+      }
+    },
     created: function() {
 
-      let scopes = ['user-read-private', 'user-read-email']
-      console.log(this.spotify)
-      let authorizeURL = 'https://accounts.spotify.com/authorize?client_id=eea843d7416f4a66bbf7192d8c817caf&response_type=code&redirect_uri=http://localhost:8080/&scope=user-read-private%20user-read-email' //TODO: Set state!
-      let searchParams = new URLSearchParams(window.location.search)
-      let code = searchParams.get('code')
-      
-      if(!code) {
-        window.location = authorizeURL;
+      var resolveSpotifyURL = function() {
+        let hash = window.location.hash.substr(1);    
+        let hashArguments = hash.split('&');
+        let hashParameters = {}
+        for(const argument of hashArguments) {
+          let parameter = argument.split('=')
+          hashParameters[parameter[0]] = parameter[1]
+        }
+        return hashParameters
       }
-      else {
-        this.spotify.authorizationCodeGrant(code).then(function(data) {
-          console.log('The token expires in ' + data.body['expires_in']);
-          console.log('The access token is ' + data.body['access_token']);
-          console.log('The refresh token is ' + data.body['refresh_token']);
-        })
-      }
-
-      if(!spotifyState.isReady) {
-        spotifyState.listenForReady(function() {
-          console.log("SPÖTIFY");
-        })
-      }
-      else {
-        console.log("SPÖTIFY");
-      }
+ 
+      var createPlayer = function() {
+        console.log("Player Create")
         
-
-        /*const token = '[My Spotify Web API access token]';
+        var token = this.$data.authToken
         const player = new Spotify.Player({
-          name: 'Web Playback SDK Quick Start Player',
+          name: 'PlayNow.',
           getOAuthToken: cb => { cb(token); }
         });
 
@@ -75,6 +69,22 @@
         // Ready
         player.addListener('ready', ({ device_id }) => {
           console.log('Ready with Device ID', device_id);
+
+          	
+          player.getCurrentState().then(state => {
+            if (!state) {
+              console.error('User is not playing music through the Web Playback SDK');
+              return;
+            }
+
+            let {
+              current_track,
+              next_tracks: [next_track]
+            } = state.track_window;
+
+            console.log('Currently Playing', current_track);
+            console.log('Playing Next', next_track);
+          });
         });
 
         // Not Ready
@@ -83,7 +93,31 @@
         });
 
         // Connect to the player!
-        player.connect();*/
+        player.connect();
+      }
+
+      let scopes = ['user-read-private', 'user-read-email']
+      let authorizeURL = 'https://accounts.spotify.com/authorize?client_id=eea843d7416f4a66bbf7192d8c817caf&response_type=token&redirect_uri=http://localhost:8080/&scope=user-read-private user-read-email streaming user-read-birthdate' //TODO: Set state!     
+      
+      let authInfo = resolveSpotifyURL()
+
+      if(!authInfo['access_token']) {
+        window.location = authorizeURL
+      }
+
+      this.$data.authToken = authInfo['access_token']
+      
+      if(!spotifyState.isReady) {
+        console.log("Not ready")
+        var vueContext = this
+        spotifyState.listenForReady(function() {
+         createPlayer.call(vueContext)
+        })
+      }
+      else {
+        console.log("Create Player")
+        createPlayer.call(this)
+      }
       
     },
     data: function() {
@@ -92,22 +126,21 @@
       }
     },
     methods: {
-      createPlayer: function() {
-
-      }
+      
     }
 
   }
 
   var spotifyState = {
       isReady: false,
+      listener: function(){},
+      setReady: function() {
+        this.isReady = true
+        this.listener()
+      },
       listenForReady: function(listener) {
-        this.isReady = listener;
+        this.listener = listener;
       }
-  }
-
-  window.onSpotifyWebPlaybackSDKReady = () => { 
-    spotifyState.isReady = true;
   }
 
 </script>
