@@ -4,10 +4,10 @@ import './registerServiceWorker'
 import VueCookie from 'vue-cookie'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faPlayCircle } from '@fortawesome/pro-regular-svg-icons'
+import { faPlayCircle, faCheck, faTimes } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlayCircle)
+library.add(faPlayCircle, faCheck, faTimes)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 

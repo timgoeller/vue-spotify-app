@@ -1,9 +1,9 @@
 <template>
-  <div id="transfer-playback-button" v-on:click="click">
-    <button :class="{'active': isActive}">
+  <div id="authorize-button" v-on:click="click">
+    <button>
       <div>
-        <h2>Play here</h2>
-        <span>Stop playback on active device and start playback here</span>
+        <h2>Authorize</h2>
+        <span>Authorize this app with Spotify</span>
       </div>
     </button>
   </div>
@@ -11,18 +11,13 @@
 
 <script>
 export default {
-  name: 'transfer-playback-button',
-  props: {
-    isActive: {
-      type: Boolean,
-      default: true
-    }
-  },
+  name: 'authorize-button',
   methods: {
       click: function() {
           this.$emit('clicked')
       }
   }
+
 }
 </script>
 
@@ -30,7 +25,7 @@ export default {
 
   @import '../assets/settings.scss';              
 
-  #transfer-playback-button button{
+  #authorize-button button{
     width: 100%;
     height: 70px;
     background-color: $light-background;
@@ -42,15 +37,11 @@ export default {
     border:none;
     outline: none;
 
-    opacity: 0.6;
+    opacity: 1;
 
-    &.active {
-      opacity: 1;
-
-      &:hover, &:focus {
-        border: 3px solid $secondary-color;
-        cursor: pointer;
-      }
+    &:hover, &:focus {
+    border: 3px solid $secondary-color;
+    cursor: pointer;
     }
 
     &:hover, &:focus {

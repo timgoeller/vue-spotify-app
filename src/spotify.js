@@ -30,3 +30,14 @@ export const SpotifyAPI = function(token) {
         }
     }
   }
+
+export const resolveSpotifyURL = function() {
+    let hash = window.location.hash.substr(1);    
+    let hashArguments = hash.split('&');
+    let hashParameters = {}
+    for(const argument of hashArguments) {
+      let parameter = argument.split('=')
+      hashParameters[parameter[0]] = parameter[1]
+    }
+    return hashParameters
+}
