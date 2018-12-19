@@ -6,7 +6,7 @@
           <h1>PlayNow.</h1>
       </div>
       <div v-if="isActiveDevice && tokenIsValid">
-        <song-item :isPrimary="true"/>
+        <player :isPrimary="true" :isPaused="isPaused"/>
         <div id="divider"></div>
         <upcoming-song-bar/>
       </div>
@@ -26,6 +26,7 @@
 
   import UpcomingSongBar from "@/components/UpcomingSongBar"
   import SongItem from "@/components/SongItem"
+  import Player from "@/components/Player"
   import TransferPlaybackButton from "@/components/TransferPlaybackButton"
   import AuthorizeButton from "@/components/AuthorizeButton"
   import AuthorizedBadge from "@/components/AuthorizedBadge"
@@ -33,7 +34,7 @@
   import {SpotifyAPI, resolveSpotifyURL} from '@/spotify'
 
   export default {
-    components: {UpcomingSongBar, SongItem, TransferPlaybackButton, AuthorizeButton, AuthorizedBadge},
+    components: {UpcomingSongBar, SongItem, TransferPlaybackButton, AuthorizeButton, AuthorizedBadge, Player},
     name: 'app',
     mounted: function() {
       let spotifyWebSDKScript = document.createElement('script')
@@ -93,7 +94,8 @@
         spotifyAPI: undefined,
         tokenIsValid: false,
         deviceID: "",
-        isActiveDevice: false
+        isActiveDevice: false,
+        isPaused: false
       }
     },
     methods: {
@@ -136,6 +138,18 @@
         // Playback status updates
         player.addListener('player_state_changed', state => { 
           console.log(state)
+          
+          if(state && !vueContext.isActiveDevice) {
+            vueContext.isActiveDevice = true
+          }
+          else if(!state) {
+            vueContext.isActiveDevice = false
+          }
+          
+          if(state) {
+            vueContext.isPaused = state.paused
+          }
+          
         });
 
         // Ready

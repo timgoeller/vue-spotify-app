@@ -1,7 +1,8 @@
 <template>
-    <div :class="{'is-primary': isPrimary}" id="song-item">
+    <div id="player">
         <div id="left-area">         
-          <h1>{{number}}.</h1>
+          <font-awesome-icon v-if="isPaused" id="play-icon" :icon="['far', 'play-circle']" />
+            <font-awesome-icon v-else id="play-icon" :icon="['far', 'pause-circle']" />
         </div>
         <div id="song-title-area">
           <h2>{{title}}</h2>
@@ -13,19 +14,11 @@
 
 <script>
 export default {
-  name: 'song-item',
+  name: 'player',
   props: {
-    isPrimary: {
-      type: Boolean,
-      default: false
-    },
     isPaused: {
       type: Boolean,
       default: false
-    },
-    number: {
-      type: Number,
-      default: 0
     },
     title: {
       type: String,
@@ -43,14 +36,14 @@ export default {
 <style lang="scss" scoped>
   @import '../assets/settings.scss';
 
-  #song-item {
+  #player {
       width: 100%;
       height: 70px;
       background-color: $light-background;
       grid-template-columns: 70px auto 70px;
       grid-template-rows: 100%;
       display: grid;
-      border-radius: 4px;
+      border-radius: 90px;
       margin: 15px 0 15px 0;
 
       &:hover {
@@ -62,6 +55,8 @@ export default {
         width: auto;
         border-radius: 0 4px 4px 0;
       }
+
+      
   }
 
   #left-area {
@@ -81,6 +76,7 @@ export default {
       font-size: 18px;
       margin: 0;
       font-weight: 400;
+      color: $secondary-color;
     }
     h3 {
       margin: 0;
