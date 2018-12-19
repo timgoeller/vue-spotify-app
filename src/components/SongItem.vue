@@ -69,10 +69,6 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-
-    h1 {
-      font-family: 'Nunito';
-    }
   }
 
   #song-title-area {
@@ -84,7 +80,6 @@ export default {
 
     h2 {
       font-size: 18px;
-      font-family: 'Nunito';
       margin: 0;
       font-weight: 400;
 
@@ -94,7 +89,6 @@ export default {
     }
     h3 {
       margin: 0;
-      font-family: 'Nunito';
       font-size: 15px;
       font-weight: 600;
     }

@@ -5,10 +5,15 @@
       <div id="header">
           <h1>PlayNow.</h1>
       </div>
-      <song-item :isPrimary="true"/>
-      <div id="divider"></div>
-      <upcoming-song-bar/>
-      
+      <div v-if="isActiveDevice">
+        <song-item :isPrimary="true"/>
+        <div id="divider"></div>
+        <upcoming-song-bar/>
+      </div>
+
+      <div v-else>
+        <transfer-playback-button/>
+      </div>
       
     </div>
   </div>
@@ -17,14 +22,14 @@
 
 <script>
 
-
-
   import UpcomingSongBar from "@/components/UpcomingSongBar"
   import SongItem from "@/components/SongItem"
-import { isRejected } from 'q';
+  import TransferPlaybackButton from "@/components/TransferPlaybackButton"
+  import {isRejected} from 'q'
+  import {SpotifyAPI} from '@/spotify'
 
   export default {
-    components: {UpcomingSongBar, SongItem},
+    components: {UpcomingSongBar, SongItem, TransferPlaybackButton},
     name: 'app',
     mounted: function() {
       let spotifyWebSDKScript = document.createElement('script')
@@ -49,9 +54,12 @@ import { isRejected } from 'q';
       }
  
       var createPlayer = function() {
-        console.log("Player Create")
-        
+  
         var token = this.$data.authToken
+        var vueContext = this
+
+        this.$data.spotifyAPI = SpotifyAPI(token)
+
         const player = new Spotify.Player({
           name: 'PlayNow.',
           getOAuthToken: cb => { cb(token); }
@@ -64,14 +72,26 @@ import { isRejected } from 'q';
         player.addListener('playback_error', ({ message }) => { console.error(message); });
 
         // Playback status updates
-        player.addListener('player_state_changed', state => { console.log(state); });
+        player.addListener('player_state_changed', state => { 
+          console.log(state)
+        });
 
         // Ready
         player.addListener('ready', ({ device_id }) => {
           console.log('Ready with Device ID', device_id);
 
+          vueContext.deviceID = device_id
+
+          /*vueContext.spotifyAPI.transferPlayback(device_id).then((response) => {
+            player.pause()
+          })
+
+          console.log("Promise: " + vueContext.$data.spotifyAPI.getPlayerState())
+            vueContext.$data.spotifyAPI.getPlayerState().then((state) => {
+            console.log(state)
+          })*/
           	
-          player.getCurrentState().then(state => {
+          /*player.getCurrentState().then(state => {
             if (!state) {
               console.error('User is not playing music through the Web Playback SDK');
               return;
@@ -84,7 +104,7 @@ import { isRejected } from 'q';
 
             console.log('Currently Playing', current_track);
             console.log('Playing Next', next_track);
-          });
+          });*/
         });
 
         // Not Ready
@@ -94,10 +114,12 @@ import { isRejected } from 'q';
 
         // Connect to the player!
         player.connect();
+
+        
       }
 
       let scopes = ['user-read-private', 'user-read-email']
-      let authorizeURL = 'https://accounts.spotify.com/authorize?client_id=eea843d7416f4a66bbf7192d8c817caf&response_type=token&redirect_uri=http://localhost:8080/&scope=user-read-private user-read-email streaming user-read-birthdate' //TODO: Set state!     
+      let authorizeURL = 'https://accounts.spotify.com/authorize?client_id=eea843d7416f4a66bbf7192d8c817caf&response_type=token&redirect_uri=http://localhost:8080/&scope=user-read-private user-read-email streaming user-read-birthdate user-modify-playback-state user-read-playback-state' //TODO: Set state!     
       
       let authInfo = resolveSpotifyURL()
 
@@ -105,7 +127,7 @@ import { isRejected } from 'q';
         window.location = authorizeURL
       }
 
-      this.$data.authToken = authInfo['access_token']
+      this.authToken = authInfo['access_token']
       
       if(!spotifyState.isReady) {
         console.log("Not ready")
@@ -122,7 +144,10 @@ import { isRejected } from 'q';
     },
     data: function() {
       return {
-        authToken: ""
+        authToken: "",
+        spotifyAPI: undefined,
+        deviceID: "",
+        isActiveDevice: false
       }
     },
     methods: {
@@ -180,8 +205,7 @@ import { isRejected } from 'q';
   #header {
     display: flex;
     justify-content: center;
-    color: white;
-    font-family: 'Didact Gothic';
+    color: white;    
     font-size: 21px;
 
     h1 {         
@@ -190,6 +214,7 @@ import { isRejected } from 'q';
       padding-bottom: 2px;
       border: 2px solid white;
       padding: 9px;
+      font-family: 'Didact Gothic';
     }
   }
 
