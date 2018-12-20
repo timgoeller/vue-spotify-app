@@ -1,8 +1,10 @@
 <template>
     <div id="player">
-        <div id="left-area">         
-          <font-awesome-icon v-if="isPaused" id="play-icon" :icon="['far', 'play-circle']" />
+        <div id="left-area">  
+          <div v-on:click="playClicked">
+            <font-awesome-icon v-if="isPaused" id="play-icon" :icon="['far', 'play-circle']" />
             <font-awesome-icon v-else id="play-icon" :icon="['far', 'pause-circle']" />
+          </div>                
         </div>
         <div id="song-title-area">
           <h2>{{title}}</h2>
@@ -29,6 +31,11 @@ export default {
       default: "Loading..."
     }
     
+  },
+  methods: {
+      playClicked: function() {
+          this.$emit('playClicked')
+      }
   }
 }
 </script>
@@ -86,8 +93,12 @@ export default {
   }
 
   #play-icon {
-    color: $secondary-color;
     font-size: 60px;
     color: $main-color;
+
+    &:hover {
+      color: $secondary-color;
+      cursor: pointer;
+    }
   }
 </style>

@@ -6,7 +6,7 @@
           <h1>PlayNow.</h1>
       </div>
       <div v-if="isActiveDevice && tokenIsValid">
-        <player :isPrimary="true" :isPaused="isPaused"/>
+        <player @playClicked="onPlayButtonClicked" :isPrimary="true" :isPaused="isPaused"/>
         <div id="divider"></div>
         <upcoming-song-bar/>
       </div>
@@ -14,7 +14,7 @@
       <div v-else>
         <authorized-badge :isAuthorized="tokenIsValid"/>
         <authorize-button @clicked="onAuthorizeButtonClicked"/>
-        <transfer-playback-button :isActive="tokenIsValid" @clicked="onPlayButtonClicked"/>
+        <transfer-playback-button :isActive="tokenIsValid" @clicked="onTransferPlaybackButtonClicked"/>
       </div>
       
     </div>
@@ -104,7 +104,7 @@
       
         window.location = authorizeURL
       },
-      onPlayButtonClicked: function() {
+      onTransferPlaybackButtonClicked: function() {
          
         if(!spotifyState.isReady) {
           var vueContext = this
@@ -117,12 +117,20 @@
           this.createPlayer.call(this)
         }
       },
+      onPlayButtonClicked: function() {
+        if(this.spotifyAPI) {
+          if(this.isPaused) {
+            this.spotifyAPI.play()
+          }
+          else {
+            this.spotifyAPI.pause()
+          }
+        }
+      },
       createPlayer: function() {
   
         var token = this.$data.authToken
-        var vueContext = this
-
-        
+        var vueContext = this      
 
         const player = new Spotify.Player({
           name: 'PlayNow.',
