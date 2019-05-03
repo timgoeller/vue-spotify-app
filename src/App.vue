@@ -224,14 +224,19 @@
       border: 2px solid white;
       padding: 9px;
       font-family: 'Didact Gothic';
+
+      background-image: linear-gradient(to right, #845ec2, #7464c8, #6169cd, #4b6ed0, #2c73d2);
+      text-shadow: 1px 2px #000000;
     }
   }
 
   #divider{
-    border: 2px solid white;
     margin-top: 35px;
     margin-bottom: 35px;
     border-radius: 6px;
+
+    height: 4px;
+    background-image: linear-gradient(to right, #845ec2, #7464c8, #6169cd, #4b6ed0, #2c73d2);
   }
 
 </style>
