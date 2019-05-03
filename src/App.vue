@@ -6,7 +6,7 @@
           <h1>PlayNow.</h1>
       </div>
       <div v-if="isActiveDevice && tokenIsValid">
-        <player @playClicked="onPlayButtonClicked" :isPrimary="true" :isPaused="isPaused"/>
+        <player @playClicked="onPlayButtonClicked" :currentTrack="currentlyPlaying" :isPrimary="true" :isPaused="isPaused"/>
         <div id="divider"></div>
         <upcoming-song-bar/>
       </div>
@@ -61,41 +61,18 @@
           //TokenInvalid
         });
       }
-
-      /*
-
-      let scopes = ['user-read-private', 'user-read-email']
-      let authorizeURL = 'https://accounts.spotify.com/authorize?client_id=eea843d7416f4a66bbf7192d8c817caf&response_type=token&redirect_uri=http://localhost:8080/&scope=user-read-private user-read-email streaming user-read-birthdate user-modify-playback-state user-read-playback-state' //TODO: Set state!     
-      
-      let authInfo = resolveSpotifyURL()
-
-      if(!authInfo['access_token']) {
-        window.location = authorizeURL
-      }
-
-      
-      
-      if(!spotifyState.isReady) {
-        console.log("Not ready")
-        var vueContext = this
-        spotifyState.listenForReady(function() {
-         createPlayer.call(vueContext)
-        })
-      }
-      else {
-        console.log("Create Player")
-        createPlayer.call(this)
-      }*/
       
     },
     data: function() {
       return {
-        authToken: "",
-        spotifyAPI: undefined,
-        tokenIsValid: false,
-        deviceID: "",
+        authToken:      "",
+        spotifyAPI:     undefined,
+        tokenIsValid:   false,
+        deviceID:       "",
         isActiveDevice: false,
-        isPaused: false
+        isPaused:       false,
+        currentTracks:  [],
+        currentlyPlaying: null
       }
     },
     methods: {
@@ -143,10 +120,11 @@
         player.addListener('account_error', ({ message }) => { console.error(message); });
         player.addListener('playback_error', ({ message }) => { console.error(message); });
 
-        // Playback status updates
+        // This listener is called, when the state of the player changes (Play/Pause/New Song)
         player.addListener('player_state_changed', state => { 
           console.log(state)
           
+          // If the state is null, this device is not the active one
           if(state && !vueContext.isActiveDevice) {
             vueContext.isActiveDevice = true
           }
@@ -158,6 +136,10 @@
             vueContext.isPaused = state.paused
           }
           
+          let currentTrack = [state.track_window.current_track]
+          this.currentTracks = currentTrack.concat(state.track_window.next_tracks)
+          this.currentlyPlaying = currentTrack[0]
+          console.log(this.currentlyPlaying)
         });
 
         // Ready

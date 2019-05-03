@@ -10,25 +10,35 @@
           <h2>{{title}}</h2>
           <h3>{{artist}}</h3>
         </div>
-        <img src='https://via.placeholder.com/150'/>
+        <img :src="albumImageURL"/>
     </div>
 </template>
 
 <script>
 export default {
   name: 'player',
+  data: function() {
+    return {
+      title:  'Loading...',
+      artist: 'Loading...',
+      albumImageURL: 'https://via.placeholder.com/150'
+    }
+  },
+  watch: {
+    currentTrack: function(val) {
+      this.artist         = val.artists[0].name
+      this.title          = val.name
+      this.albumImageURL  = val.album.images[0].url
+    }
+  },
   props: {
     isPaused: {
       type: Boolean,
       default: false
     },
-    title: {
-      type: String,
-      default: "Loading..."
-    },
-    artist: {
-      type: String,
-      default: "Loading..."
+    currentTrack: {
+      type: Object,
+      default: null
     }
     
   },
