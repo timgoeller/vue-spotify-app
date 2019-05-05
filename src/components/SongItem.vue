@@ -1,41 +1,42 @@
 <template>
     <div :class="{'is-primary': isPrimary}" id="song-item">
         <div id="left-area">         
-          <h1>{{number}}.</h1>
+          <h1>{{number + 1}}.</h1>
         </div>
         <div id="song-title-area">
           <h2>{{title}}</h2>
           <h3>{{artist}}</h3>
         </div>
-        <img src='https://via.placeholder.com/150'/>
+        <img :src="albumImageURL"/>
     </div>
 </template>
 
 <script>
 export default {
   name: 'song-item',
+  data: function() {
+    return {
+      title:  'Loading...',
+      artist: 'Loading...',
+      albumImageURL: 'https://via.placeholder.com/150'
+    }
+  },
+  watch: {
+    song: function(val) {
+      this.artist         = val.artists[0].name
+      this.title          = val.name
+      this.albumImageURL  = val.album.images[0].url
+    }
+  },
   props: {
-    isPrimary: {
-      type: Boolean,
-      default: false
-    },
-    isPaused: {
-      type: Boolean,
-      default: false
-    },
     number: {
       type: Number,
       default: 0
-    },
-    title: {
-      type: String,
-      default: "Loading..."
-    },
-    artist: {
-      type: String,
-      default: "Loading..."
+    },  
+    song: {
+      type: Object,
+      default: null
     }
-    
   }
 }
 </script>

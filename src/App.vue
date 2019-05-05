@@ -6,9 +6,9 @@
           <h1>PlayNow.</h1>
       </div>
       <div v-if="isActiveDevice && tokenIsValid">
-        <player @playClicked="onPlayButtonClicked" :currentTrack="currentlyPlaying" :isPrimary="true" :isPaused="isPaused"/>
+        <player @playClicked="onPlayButtonClicked" :currentTrack="currentlyPlaying" :isPaused="isPaused"/>
         <div id="divider"></div>
-        <upcoming-song-bar/>
+        <upcoming-song-bar :upcomingSongs="upcomingSongs" />
       </div>
 
       <div v-else>
@@ -71,7 +71,7 @@
         deviceID:       "",
         isActiveDevice: false,
         isPaused:       false,
-        currentTracks:  [],
+        upcomingSongs:  [],
         currentlyPlaying: null
       }
     },
@@ -136,10 +136,8 @@
             vueContext.isPaused = state.paused
           }
           
-          let currentTrack = [state.track_window.current_track]
-          this.currentTracks = currentTrack.concat(state.track_window.next_tracks)
-          this.currentlyPlaying = currentTrack[0]
-          console.log(this.currentlyPlaying)
+          this.upcomingSongs    = state.track_window.next_tracks
+          this.currentlyPlaying = state.track_window.current_track
         });
 
         // Ready

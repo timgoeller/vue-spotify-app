@@ -1,6 +1,8 @@
 <template>
   <div>
-    <song-item v-for="(song, index) in upcomingSongs" :key="index" :number="index"/>
+    <div v-for="(song, index) in upcomingSongs" :key="index">
+      <song-item :number="index" :song="song"/>
+    </div>  
   </div>
 </template>
 
@@ -10,11 +12,11 @@
   export default {
     components: {SongItem},
     name: 'upcoming-song-bar',
-    data: function() {
-      return {
-        upcomingSongs: []
+    props: {
+      upcomingSongs: {
+        type: Array,
+        default: []
       }
-     
     }
   }
 </script>
